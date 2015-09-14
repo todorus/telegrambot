@@ -70,27 +70,20 @@ public class TelegramBotPublisher extends Publisher {
 
         PrintStream logger = listener.getLogger();
 
-        // Setup the objects used for sending the message to Telegram
+        // Prep the message
+        Message message = new Message.Builder().setBuild(build).setChatId(Integer.parseInt(getChatId())).build();
+
+        // Send it to the bot
         BotClient botClient = RetroAdapter.getAdapter().create(BotClient.class);
-        Message message = null;
-
-        // Evaluate the result and send the actual message
-        Result result = build.getResult();
-        if (result == Result.SUCCESS) {
-            logger.println("SUCCESS, " + token + "|" + chatId);
-            message = new Message(Integer.decode(getChatId()), "SUCCESS");
-        } else if (result == Result.UNSTABLE) {
-            logger.println("UNSTABLE, " + token + "|" + chatId);
-            message = new Message(Integer.decode(getChatId()), "UNSTABLE");
-        } else if (result == Result.FAILURE) {
-            logger.println("FAILURE, " + token + "|" + chatId);
-            message = new Message(Integer.decode(getChatId()), "FAILURE");
-        }
-
-        logger.println("Sending message");
+        logger.println("TelegramBot: Sending message to chat "+getChatId());
         if(message != null) {
             Message.Response response = botClient.sendMessage(getToken(), message);
-            logger.println("Response: "+response.isOk());
+            if(response.isOk()){
+                logger.println("TelegramBot: "+"successfully sent message");
+            } else {
+                logger.println("TelegramBot: "+"failed to send message \""+response.getErrorCode()+":"+response.getDescription()+"\"");
+            }
+
         }
 
         return true;
