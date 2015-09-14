@@ -1,0 +1,23 @@
+# IntelliJ
+*.iml
+.idea/
+*.iml
+build/
+
+# Eclipse
+.settings
+target
+.classpath
+.project
+
+#Jenkins output
+target/
+work/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# OS specific
+.DS_Store
+Thumbs.db
+.sw?
