@@ -1,6 +1,7 @@
 package com.todorus.telegrambot.model;
 
 import com.google.gson.annotations.SerializedName;
+import hudson.model.AbstractBuild;
 
 /**
  * Created by todorus on 14/09/15.
@@ -45,25 +46,23 @@ public class Message {
     private ReplyMarkup replyMarkup;
 
     /**
-     *
      * @param chatId Unique identifier for the message recipient — User or GroupChat id
-     * @param text Text of the message to be sent
+     * @param text   Text of the message to be sent
      */
-    public Message(int chatId, String text){
+    public Message(int chatId, String text) {
         this(chatId, text, null, false, null, null);
     }
 
 
     /**
-     *
-     * @param chatId Unique identifier for the message recipient — User or GroupChat id
-     * @param text Text of the message to be sent
-     * @param parseMode Send Markdown, if you want Telegram apps to show bold, italic and inline URLs in your bot's message. For the moment, only Telegram for Android supports this.
+     * @param chatId                Unique identifier for the message recipient — User or GroupChat id
+     * @param text                  Text of the message to be sent
+     * @param parseMode             Send Markdown, if you want Telegram apps to show bold, italic and inline URLs in your bot's message. For the moment, only Telegram for Android supports this.
      * @param disableWebPagePreview Disables link previews for links in this message
-     * @param replyToMessageId If the message is a reply, ID of the original message
-     * @param replyMarkup Additional interface options. A JSON-serialized object for a custom reply keyboard, instructions to hide keyboard or to force a reply from the user.
+     * @param replyToMessageId      If the message is a reply, ID of the original message
+     * @param replyMarkup           Additional interface options. A JSON-serialized object for a custom reply keyboard, instructions to hide keyboard or to force a reply from the user.
      */
-    public Message(int chatId, String text, String parseMode, boolean disableWebPagePreview, Integer replyToMessageId, ReplyMarkup replyMarkup){
+    public Message(int chatId, String text, String parseMode, boolean disableWebPagePreview, Integer replyToMessageId, ReplyMarkup replyMarkup) {
         this.chatId = chatId;
         this.text = text;
         this.parseMode = parseMode;
@@ -106,6 +105,33 @@ public class Message {
         public Message getResult() {
             return result;
         }
+    }
+
+    public static class Builder {
+
+        private AbstractBuild build;
+        private int chatId;
+
+        public Builder setBuild(AbstractBuild build) {
+            this.build = build;
+            return this;
+        }
+
+        public Builder setChatId(int chatId) {
+            this.chatId = chatId;
+            return this;
+        }
+
+
+        public Message build() {
+            String fullDisplayName = build.getFullDisplayName();
+            String result = build.getResult().toString();
+
+            Message message = new Message(chatId, fullDisplayName+" "+result);
+
+            return message;
+        }
+
     }
 
 }
