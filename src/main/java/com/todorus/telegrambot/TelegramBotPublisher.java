@@ -1,5 +1,6 @@
 package com.todorus.telegrambot;
 import com.todorus.telegrambot.control.BotClient;
+import com.todorus.telegrambot.control.BotController;
 import com.todorus.telegrambot.control.RetroAdapter;
 import com.todorus.telegrambot.model.Message;
 import hudson.Launcher;
@@ -73,18 +74,12 @@ public class TelegramBotPublisher extends Publisher {
         // Prep the message
         Message message = new Message.Builder().setBuild(build).setChatId(Integer.parseInt(getChatId())).build();
 
-        // Send it to the bot
+        // Prep the controller
         BotClient botClient = RetroAdapter.getAdapter().create(BotClient.class);
-        logger.println("TelegramBot: Sending message to chat "+getChatId());
-        if(message != null) {
-            Message.Response response = botClient.sendMessage(getToken(), message);
-            if(response.isOk()){
-                logger.println("TelegramBot: "+"successfully sent message");
-            } else {
-                logger.println("TelegramBot: "+"failed to send message \""+response.getErrorCode()+":"+response.getDescription()+"\"");
-            }
+        BotController botController = new BotController(botClient, listener);
 
-        }
+        // Send it to the bot
+        botController.sendMessage(getToken(), message);
 
         return true;
     }

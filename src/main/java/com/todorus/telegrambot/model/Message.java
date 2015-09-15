@@ -102,10 +102,31 @@ public class Message {
 
         private Message result;
 
+        /**
+         * (for unittesting only)
+         * Simulate an Error response from the Telegram Bot API
+         * @param errorCode
+         * @param description
+         */
+        public Response(int errorCode, String description){
+            super(errorCode, description);
+        }
+
+        /**
+         * (for unittesting only)
+         * Simulate an Error response from the Telegram Bot API
+         * @param result
+         */
+        public Response(Message result){
+            this.ok = true;
+            this.result = result;
+        }
+
         public Message getResult() {
             return result;
         }
     }
+
 
     public static class Builder {
 

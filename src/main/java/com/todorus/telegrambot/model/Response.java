@@ -22,13 +22,27 @@ import com.google.gson.annotations.SerializedName;
  */
 public abstract class Response {
 
-    private boolean ok;
+    protected boolean ok;
 
-    private String description;
+    protected String description;
 
     // Contents are subject to change
     @SerializedName("error_code")
-    private int errorCode;
+    protected int errorCode;
+
+    protected Response(){}
+
+    /**
+     * (for unittesting only)
+     * Simulate an Error response from the Telegram Bot API
+     * @param errorCode
+     * @param description
+     */
+    protected Response(int errorCode, String description){
+        this.errorCode = errorCode;
+        this.description = description;
+        this.ok = false;
+    }
 
     public boolean isOk() {
         return ok;

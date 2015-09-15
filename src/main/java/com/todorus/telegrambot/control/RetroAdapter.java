@@ -32,11 +32,15 @@ public class RetroAdapter {
 
         RestAdapter.Builder  builder =  new RestAdapter.Builder()
                 .setEndpoint(baseUrl)
-                .setConverter(new GsonConverter(new Gson()))
+                .setConverter(getGsonConverter())
                 .setLogLevel(RestAdapter.LogLevel.NONE)
                 .setClient(client);
 
         return builder.build();
+    }
+
+    public static GsonConverter getGsonConverter(){
+        return new GsonConverter(new Gson());
     }
 
 }
