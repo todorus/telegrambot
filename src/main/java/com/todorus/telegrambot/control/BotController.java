@@ -1,5 +1,6 @@
 package com.todorus.telegrambot.control;
 
+import com.todorus.telegrambot.model.Document;
 import com.todorus.telegrambot.model.Message;
 import hudson.model.TaskListener;
 import retrofit.RetrofitError;
@@ -40,6 +41,29 @@ public class BotController {
                 String logMessage = "TelegramBot: " + "failed to send message \"" + retrofitError.getMessage() + "\"";
                 logger.println(logMessage);
             }
+        }
+
+        return false;
+    }
+
+    // TODO write a test for this method
+    public boolean sendDocument(String token, Document document){
+        PrintStream logger = taskListener.getLogger();
+
+        try {
+            Message.Response response = botClient.sendDocument(token, document.getChatId(), document.getFile());
+
+            if (response.isOk()) {
+                logger.println("TelegramBot: successfully sent document");
+                return true;
+            } else {
+                String logMessage = "TelegramBot: " + "failed to send document \"" + response.getErrorCode() + " " + response.getDescription() + "\"";
+                logger.println(logMessage);
+            }
+
+        } catch (RetrofitError retrofitError){
+            String logMessage = "TelegramBot: " + "failed to send document \"" + retrofitError.getMessage() + "\"";
+            logger.println(logMessage);
         }
 
         return false;

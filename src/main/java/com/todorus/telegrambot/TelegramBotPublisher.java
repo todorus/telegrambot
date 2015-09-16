@@ -2,24 +2,26 @@ package com.todorus.telegrambot;
 import com.todorus.telegrambot.control.BotClient;
 import com.todorus.telegrambot.control.BotController;
 import com.todorus.telegrambot.control.RetroAdapter;
+import com.todorus.telegrambot.model.Document;
 import com.todorus.telegrambot.model.Message;
 import hudson.Launcher;
 import hudson.Extension;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.*;
 import hudson.util.FormValidation;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
-import hudson.model.AbstractProject;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import retrofit.RestAdapter;
+import retrofit.mime.TypedFile;
 
 import javax.servlet.ServletException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 
 /**
  * Sample {@link Builder}.
@@ -38,7 +40,7 @@ import java.io.PrintStream;
  *
  * @author Kohsuke Kawaguchi
  */
-public class TelegramBotPublisher extends Publisher {
+public class TelegramBotPublisher extends Notifier {
 
     private final String token;
     private final String chatId;
@@ -72,14 +74,26 @@ public class TelegramBotPublisher extends Publisher {
         PrintStream logger = listener.getLogger();
 
         // Prep the message
-        Message message = new Message.Builder().setBuild(build).setChatId(Integer.parseInt(getChatId())).build();
-
+        int chatId = Integer.parseInt(getChatId());
+        Message message = new Message.Builder().setBuild(build).setChatId(chatId).build();
         // Prep the controller
         BotClient botClient = RetroAdapter.getAdapter().create(BotClient.class);
         BotController botController = new BotController(botClient, listener);
 
         // Send it to the bot
         botController.sendMessage(getToken(), message);
+
+        // If we have a failure, send the buildlog as well
+        if(build.getResult().isWorseThan(Result.SUCCESS) && build.getLogFile() != null) {
+
+            Document document = Document.getLogDocument(chatId, build);
+
+            if(document != null) {
+                botController.sendDocument(getToken(), document);
+            } else {
+                logger.println("TelegramBot: Could not find a logfile to send. Kind off ironic, as I'm writing this to it.");
+            }
+        }
 
         return true;
     }
@@ -95,6 +109,11 @@ public class TelegramBotPublisher extends Publisher {
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
+    }
+
+    @Override
+    public boolean needsToRunAfterFinalized() {
+        return true;
     }
 
     /**
