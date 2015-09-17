@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * Created by todorus on 15/09/15.
  */
-public class BotControllerTest {
+public class BotControllerMessageTest {
 
     private String token;
 
