@@ -2,6 +2,9 @@ package com.todorus.telegrambot.model;
 
 import com.google.gson.annotations.SerializedName;
 import hudson.model.AbstractBuild;
+import hudson.scm.ChangeLogSet;
+
+import java.util.Iterator;
 
 /**
  * Created by todorus on 14/09/15.
@@ -145,10 +148,30 @@ public class Message {
 
 
         public Message build() {
+            final int MAX_MESSAGES = 3;
+
             String fullDisplayName = build.getFullDisplayName();
             String result = build.getResult().toString();
 
-            Message message = new Message(chatId, fullDisplayName+" "+result);
+            String commit = "";
+
+            ChangeLogSet.Entry entry = null;
+            ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet = build.getChangeSet();
+            Iterator<ChangeLogSet.Entry> iterator = build.getChangeSet().iterator();
+            if(iterator.hasNext()) {
+                // It has entries
+                for (int i = 0; i < MAX_MESSAGES && iterator.hasNext(); i++) {
+                    entry = iterator.next();
+                    commit += "\n" + entry.getAuthor().getDisplayName() + ": " + entry.getMsg();
+                }
+
+                // Check if it has more entries than the maximum amount of messages
+                if(iterator.hasNext()){
+                    commit += "\n...";
+                }
+            }
+
+            Message message = new Message(chatId, fullDisplayName+" "+result+ commit);
 
             return message;
         }
