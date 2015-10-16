@@ -17,7 +17,7 @@ public class Message {
      * Unique identifier for the message recipient — User or GroupChat id
      */
     @SerializedName("chat_id")
-    private int chatId;
+    private long chatId;
 
     /**
      * Text of the message to be sent
@@ -54,7 +54,7 @@ public class Message {
      * @param chatId Unique identifier for the message recipient — User or GroupChat id
      * @param text   Text of the message to be sent
      */
-    public Message(int chatId, String text) {
+    public Message(long chatId, String text) {
         this(chatId, text, null, false, null, null);
     }
 
@@ -67,7 +67,7 @@ public class Message {
      * @param replyToMessageId      If the message is a reply, ID of the original message
      * @param replyMarkup           Additional interface options. A JSON-serialized object for a custom reply keyboard, instructions to hide keyboard or to force a reply from the user.
      */
-    public Message(int chatId, String text, String parseMode, boolean disableWebPagePreview, Integer replyToMessageId, ReplyMarkup replyMarkup) {
+    public Message(long chatId, String text, String parseMode, boolean disableWebPagePreview, Integer replyToMessageId, ReplyMarkup replyMarkup) {
         this.chatId = chatId;
         this.text = text;
         this.parseMode = parseMode;
@@ -76,7 +76,7 @@ public class Message {
         this.replyMarkup = replyMarkup;
     }
 
-    public int getChatId() {
+    public long getChatId() {
         return chatId;
     }
 
@@ -137,15 +137,24 @@ public class Message {
 
     public static class Builder {
 
+        List<ChangeLogSet.Entry> entries = new ArrayList<ChangeLogSet.Entry>();
+
         private AbstractBuild build;
-        private int chatId;
+        private long chatId;
 
         public Builder setBuild(AbstractBuild build) {
             this.build = build;
+
+            // We can't get the size without using up the only iterator of the changeset
+            Iterator<ChangeLogSet.Entry> iterator = build.getChangeSet().iterator();
+            while(iterator.hasNext()){
+                entries.add(iterator.next());
+            }
+
             return this;
         }
 
-        public Builder setChatId(int chatId) {
+        public Builder setChatId(long chatId) {
             this.chatId = chatId;
             return this;
         }
@@ -159,16 +168,7 @@ public class Message {
 
             String commit = "";
 
-            ChangeLogSet.Entry entry = null;
-            ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet = build.getChangeSet();
-
-            // We can't get the size without using up the only iterator of the changeset
-            Iterator<ChangeLogSet.Entry> iterator = build.getChangeSet().iterator();
-            List<ChangeLogSet.Entry> entries = new ArrayList<ChangeLogSet.Entry>();
-            while(iterator.hasNext()){
-                entries.add(iterator.next());
-            }
-
+            ChangeLogSet.Entry entry;
             int size = entries.size();
             int startIndex = Math.max(0, size - MAX_MESSAGES);
             for(int i = startIndex; i < size; i++){

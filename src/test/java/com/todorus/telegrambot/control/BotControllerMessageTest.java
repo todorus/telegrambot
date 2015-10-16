@@ -53,7 +53,7 @@ public class BotControllerMessageTest {
         stub(taskListener.getLogger()).toReturn(logger);
 
         token = new BotToken(UUID.randomUUID().toString());
-        message = new Message(11, "some body text");
+        message = new Message(11L, "some body text");
 
         subject = new BotController(botClient, taskListener);
     }

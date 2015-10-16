@@ -14,16 +14,16 @@ import java.io.IOException;
  */
 public class Document {
 
-    private int chatId;
+    private long chatId;
 
     private TypedFile file;
 
-    public Document(int chatId, TypedFile file) {
+    public Document(long chatId, TypedFile file) {
         this.chatId = chatId;
         this.file = file;
     }
 
-    public int getChatId() {
+    public long getChatId() {
         return chatId;
     }
 
@@ -31,7 +31,7 @@ public class Document {
         return file;
     }
 
-    public static Document getLogDocument(int chatId, AbstractBuild build) {
+    public static Document getLogDocument(Chat chat, AbstractBuild build) {
         if (build.getLogFile() == null) {
             return null;
         }
@@ -58,7 +58,7 @@ public class Document {
             }
 
             // add the logfile to a Document
-            Document document = new Document(chatId, new TypedFile("text/plain", logFile));
+            Document document = new Document(chat.getChatId(), new TypedFile("text/plain", logFile));
 
             return document;
 

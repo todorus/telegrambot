@@ -40,7 +40,7 @@ public class BotControllerDocumentTest {
     @Mock
     private PrintStream logger;
 
-    final static int chatId = 11;
+    final static long chatId = 11;
     final static String logFileName = "build_#5_log.txt";
     final static String logContents = "the logs contents";
     final static String logMimeType = "text/plain";
