@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName;
 import hudson.model.AbstractBuild;
 import hudson.scm.ChangeLogSet;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by todorus on 14/09/15.
@@ -108,19 +110,21 @@ public class Message {
         /**
          * (for unittesting only)
          * Simulate an Error response from the Telegram Bot API
+         *
          * @param errorCode
          * @param description
          */
-        public Response(int errorCode, String description){
+        public Response(int errorCode, String description) {
             super(errorCode, description);
         }
 
         /**
          * (for unittesting only)
          * Simulate an Error response from the Telegram Bot API
+         *
          * @param result
          */
-        public Response(Message result){
+        public Response(Message result) {
             this.ok = true;
             this.result = result;
         }
@@ -157,21 +161,27 @@ public class Message {
 
             ChangeLogSet.Entry entry = null;
             ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet = build.getChangeSet();
-            Iterator<ChangeLogSet.Entry> iterator = build.getChangeSet().iterator();
-            if(iterator.hasNext()) {
-                // It has entries
-                for (int i = 0; i < MAX_MESSAGES && iterator.hasNext(); i++) {
-                    entry = iterator.next();
-                    commit += "\n" + entry.getAuthor().getDisplayName() + ": " + entry.getMsg();
-                }
 
-                // Check if it has more entries than the maximum amount of messages
-                if(iterator.hasNext()){
-                    commit += "\n...";
-                }
+            // We can't get the size without using up the only iterator of the changeset
+            Iterator<ChangeLogSet.Entry> iterator = build.getChangeSet().iterator();
+            List<ChangeLogSet.Entry> entries = new ArrayList<ChangeLogSet.Entry>();
+            while(iterator.hasNext()){
+                entries.add(iterator.next());
             }
 
-            Message message = new Message(chatId, fullDisplayName+" "+result+ commit);
+            int size = entries.size();
+            int startIndex = Math.max(0, size - MAX_MESSAGES);
+            for(int i = startIndex; i < size; i++){
+                entry = entries.get(i);
+                commit += "\n" + entry.getAuthor().getDisplayName() + ": " + entry.getMsg();
+            }
+
+            if(startIndex > 0){
+                // It has at least one commit that isn't shown, show dots
+                commit += "\n...";
+            }
+
+            Message message = new Message(chatId, fullDisplayName + " " + result + commit);
 
             return message;
         }

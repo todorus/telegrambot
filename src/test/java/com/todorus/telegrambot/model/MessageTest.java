@@ -55,9 +55,10 @@ public class MessageTest {
         stub(build.getChangeSet()).toReturn(changeLogSet);
         stub(changeLogSet.iterator()).toReturn(iterator);
 
-        changesString = "\n" + userDisplayName + ": " + changes.get(0).getMsg() +
-                "\n" + userDisplayName + ": " + changes.get(1).getMsg() +
+        // Only show the last commits
+        changesString = "\n" + userDisplayName + ": " + changes.get(1).getMsg() +
                 "\n" + userDisplayName + ": " + changes.get(2).getMsg() +
+                "\n" + userDisplayName + ": " + changes.get(3).getMsg() +
                 "\n...";
 
         fullName = "the full name";
