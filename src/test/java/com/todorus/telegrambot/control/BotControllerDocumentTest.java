@@ -1,5 +1,6 @@
 package com.todorus.telegrambot.control;
 
+import com.todorus.telegrambot.model.BotToken;
 import com.todorus.telegrambot.model.Document;
 import com.todorus.telegrambot.model.Message;
 import hudson.model.TaskListener;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.*;
  */
 public class BotControllerDocumentTest {
 
-    private String token;
+    private BotToken token;
 
     @Mock
     private BotClient botClient;
@@ -39,7 +40,7 @@ public class BotControllerDocumentTest {
     @Mock
     private PrintStream logger;
 
-    final static int chatId = 11;
+    final static long chatId = 11;
     final static String logFileName = "build_#5_log.txt";
     final static String logContents = "the logs contents";
     final static String logMimeType = "text/plain";
@@ -66,7 +67,7 @@ public class BotControllerDocumentTest {
         document = new Document(chatId, new TypedFile(logMimeType, logFile));
 
         // Generate a random token
-        token = UUID.randomUUID().toString();
+        token = new BotToken(UUID.randomUUID().toString());
 
         message = new Message(chatId, null);
 
@@ -85,7 +86,7 @@ public class BotControllerDocumentTest {
         logMessage = "TelegramBot: successfully sent document";
         result = subject.sendDocument(token, document);
 
-        verify(botClient, only()).sendDocument(token, chatId, document.getFile()); // It sends the document
+        verify(botClient, only()).sendDocument(token.toString(), chatId, document.getFile()); // It sends the document
         verify(logger, times(1)).println(logMessage); // It logs the success
         assertTrue(result); // It returns true as it is successful
 
@@ -102,7 +103,7 @@ public class BotControllerDocumentTest {
         logMessage = "TelegramBot: failed to send document \"504 Unauthorized\"";
         result = subject.sendDocument(token, document);
 
-        verify(botClient, only()).sendDocument(token, chatId, document.getFile()); // It sends the document
+        verify(botClient, only()).sendDocument(token.toString(), chatId, document.getFile()); // It sends the document
         verify(logger, times(1)).println(logMessage); // It logs the success
         assertFalse(result); // It returns false as it is unsuccessful
 
@@ -119,7 +120,7 @@ public class BotControllerDocumentTest {
         logMessage = "TelegramBot: " + "failed to send document \"404 Not Found\"";
         result = subject.sendDocument(token, document);
 
-        verify(botClient, only()).sendDocument(token, chatId, document.getFile()); // It sends the message
+        verify(botClient, only()).sendDocument(token.toString(), chatId, document.getFile()); // It sends the message
         verify(logger, times(1)).println(logMessage); // It logs the success
         assertFalse(result); // It returns false as it is unsuccessful
 

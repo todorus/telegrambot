@@ -17,7 +17,8 @@ import static org.mockito.Mockito.stub;
  */
 public class DocumentTest {
 
-    int chatId;
+    long chatId;
+    Chat chat;
 
     final static String logFileName = "build_#5_log.txt";
     final static String logContents = "the logs contents";
@@ -31,7 +32,7 @@ public class DocumentTest {
         MockitoAnnotations.initMocks(this);
 
         chatId = new Random().nextInt();
-
+        chat = new Chat(chatId);
 
         stub(build.getFullDisplayName()).toReturn("build #5");
     }
@@ -48,7 +49,7 @@ public class DocumentTest {
 
         stub(build.getLogFile()).toReturn(logFile);
 
-        Document result = Document.getLogDocument(chatId, build);
+        Document result = Document.getLogDocument(chat, build);
 
         assertNotNull(result.getFile());
         assertEquals(logFileName, result.getFile().fileName());
@@ -63,7 +64,7 @@ public class DocumentTest {
     public void it_returns_null_when_it_cannot_create_the_log_document() throws Exception {
         stub(build.getLogFile()).toReturn(null);
 
-        Document result = Document.getLogDocument(chatId, build);
+        Document result = Document.getLogDocument(chat, build);
 
         assertNull(result);
     }

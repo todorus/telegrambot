@@ -2,6 +2,8 @@ package com.todorus.telegrambot;
 import com.todorus.telegrambot.control.BotClient;
 import com.todorus.telegrambot.control.BotController;
 import com.todorus.telegrambot.control.RetroAdapter;
+import com.todorus.telegrambot.model.BotToken;
+import com.todorus.telegrambot.model.Chat;
 import com.todorus.telegrambot.model.Document;
 import com.todorus.telegrambot.model.Message;
 import hudson.Launcher;
@@ -42,6 +44,7 @@ import java.util.List;
  */
 public class TelegramBotPublisher extends Notifier {
 
+    private BotToken botToken;
     private final String token;
     private final String chatId;
 
@@ -61,6 +64,13 @@ public class TelegramBotPublisher extends Notifier {
         return token;
     }
 
+    public BotToken getBotToken(){
+        if(botToken == null){
+            botToken = BotToken.parseTokens(token).get(0);
+        }
+        return botToken;
+    }
+
     /**
      * We'll use this from the <tt>config.jelly</tt>.
      */
@@ -74,24 +84,31 @@ public class TelegramBotPublisher extends Notifier {
         PrintStream logger = listener.getLogger();
 
         // Prep the message
-        int chatId = Integer.parseInt(getChatId());
-        Message message = new Message.Builder().setBuild(build).setChatId(chatId).build();
+        List<Chat> chats = Chat.parseChats(getChatId());
+        Message.Builder builder = new Message.Builder().setBuild(build);
+
         // Prep the controller
         BotClient botClient = RetroAdapter.getAdapter().create(BotClient.class);
         BotController botController = new BotController(botClient, listener);
 
-        // Send it to the bot
-        botController.sendMessage(getToken(), message);
+        // Send it to the chats
+        for(Chat chat : chats) {
+            Message message = builder.setChatId(chat.getChatId()).build();
+            botController.sendMessage(getBotToken(), message);
+        }
 
         // If we have a failure, send the buildlog as well
         if(build.getResult().isWorseThan(Result.SUCCESS) && build.getLogFile() != null) {
 
-            Document document = Document.getLogDocument(chatId, build);
+            for(Chat chat : chats) {
+                //TODO create a builder to reuse the same file
+                Document document = Document.getLogDocument(chat, build);
 
-            if(document != null) {
-                botController.sendDocument(getToken(), document);
-            } else {
-                logger.println("TelegramBot: Could not find a logfile to send. Kind off ironic, as I'm writing this to it.");
+                if (document != null) {
+                    botController.sendDocument(getBotToken(), document);
+                } else {
+                    logger.println("TelegramBot: Could not find a logfile to send. Kind off ironic, as I'm writing this to it.");
+                }
             }
         }
 

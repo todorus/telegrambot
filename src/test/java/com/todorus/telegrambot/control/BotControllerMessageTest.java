@@ -1,6 +1,7 @@
 package com.todorus.telegrambot.control;
 
 import com.google.gson.Gson;
+import com.todorus.telegrambot.model.BotToken;
 import com.todorus.telegrambot.model.Message;
 import hudson.model.TaskListener;
 import org.junit.Before;
@@ -26,7 +27,7 @@ import static org.junit.Assert.*;
  */
 public class BotControllerMessageTest {
 
-    private String token;
+    private BotToken token;
 
     @Mock
     private BotClient botClient;
@@ -51,8 +52,8 @@ public class BotControllerMessageTest {
 
         stub(taskListener.getLogger()).toReturn(logger);
 
-        token = UUID.randomUUID().toString();
-        message = new Message(11, "some body text");
+        token = new BotToken(UUID.randomUUID().toString());
+        message = new Message(11L, "some body text");
 
         subject = new BotController(botClient, taskListener);
     }
@@ -68,7 +69,7 @@ public class BotControllerMessageTest {
         logMessage = "TelegramBot: successfully sent message";
         result = subject.sendMessage(token, message);
 
-        verify(botClient, only()).sendMessage(token, message); // It sends the message
+        verify(botClient, only()).sendMessage(token.toString(), message); // It sends the message
         verify(logger, times(1)).println(logMessage); // It logs the success
         assertTrue(result); // It returns true as it is successful
 
@@ -85,7 +86,7 @@ public class BotControllerMessageTest {
         logMessage = "TelegramBot: failed to send message \"504 Unauthorized\"";
         result = subject.sendMessage(token, message);
 
-        verify(botClient, only()).sendMessage(token, message); // It sends the message
+        verify(botClient, only()).sendMessage(token.toString(), message); // It sends the message
         verify(logger, times(1)).println(logMessage); // It logs the success
         assertFalse(result); // It returns false as it is unsuccessful
 
@@ -102,7 +103,7 @@ public class BotControllerMessageTest {
         logMessage = "TelegramBot: " + "failed to send message \"404 Not Found\"";
         result = subject.sendMessage(token, message);
 
-        verify(botClient, only()).sendMessage(token, message); // It sends the message
+        verify(botClient, only()).sendMessage(token.toString(), message); // It sends the message
         verify(logger, times(1)).println(logMessage); // It logs the success
         assertFalse(result); // It returns false as it is unsuccessful
 

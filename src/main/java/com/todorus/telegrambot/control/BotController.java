@@ -1,5 +1,6 @@
 package com.todorus.telegrambot.control;
 
+import com.todorus.telegrambot.model.BotToken;
 import com.todorus.telegrambot.model.Document;
 import com.todorus.telegrambot.model.Message;
 import hudson.model.TaskListener;
@@ -20,14 +21,14 @@ public class BotController {
         this.taskListener = taskListener;
     }
 
-    public boolean sendMessage(String token, Message message){
+    public boolean sendMessage(BotToken token, Message message){
         PrintStream logger = taskListener.getLogger();
 
         logger.println("TelegramBot: Sending message to chat " + message.getChatId());
 
         if(message != null) {
             try {
-                Message.Response response = botClient.sendMessage(token, message);
+                Message.Response response = botClient.sendMessage(token.toString(), message);
 
                 if (response.isOk()) {
                     logger.println("TelegramBot: successfully sent message");
@@ -47,11 +48,11 @@ public class BotController {
     }
 
     // TODO write a test for this method
-    public boolean sendDocument(String token, Document document){
+    public boolean sendDocument(BotToken token, Document document){
         PrintStream logger = taskListener.getLogger();
 
         try {
-            Message.Response response = botClient.sendDocument(token, document.getChatId(), document.getFile());
+            Message.Response response = botClient.sendDocument(token.toString(), document.getChatId(), document.getFile());
 
             if (response.isOk()) {
                 logger.println("TelegramBot: successfully sent document");

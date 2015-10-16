@@ -14,6 +14,6 @@ public interface BotClient {
 
     @Multipart
     @POST("/bot{token}/sendDocument")
-    public Message.Response sendDocument(@Path("token") String token, @Query("chat_id") int chatId, @Part("document") TypedFile document);
+    public Message.Response sendDocument(@Path("token") String token, @Query("chat_id") long chatId, @Part("document") TypedFile document);
 
 }
