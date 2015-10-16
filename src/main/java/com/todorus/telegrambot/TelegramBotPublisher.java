@@ -2,6 +2,7 @@ package com.todorus.telegrambot;
 import com.todorus.telegrambot.control.BotClient;
 import com.todorus.telegrambot.control.BotController;
 import com.todorus.telegrambot.control.RetroAdapter;
+import com.todorus.telegrambot.model.BotToken;
 import com.todorus.telegrambot.model.Document;
 import com.todorus.telegrambot.model.Message;
 import hudson.Launcher;
@@ -42,6 +43,7 @@ import java.util.List;
  */
 public class TelegramBotPublisher extends Notifier {
 
+    private BotToken botToken;
     private final String token;
     private final String chatId;
 
@@ -59,6 +61,13 @@ public class TelegramBotPublisher extends Notifier {
      */
     public String getToken() {
         return token;
+    }
+
+    public BotToken getBotToken(){
+        if(botToken == null){
+            botToken = BotToken.parseTokens(token).get(0);
+        }
+        return botToken;
     }
 
     /**
@@ -81,7 +90,7 @@ public class TelegramBotPublisher extends Notifier {
         BotController botController = new BotController(botClient, listener);
 
         // Send it to the bot
-        botController.sendMessage(getToken(), message);
+        botController.sendMessage(getBotToken(), message);
 
         // If we have a failure, send the buildlog as well
         if(build.getResult().isWorseThan(Result.SUCCESS) && build.getLogFile() != null) {
@@ -89,7 +98,7 @@ public class TelegramBotPublisher extends Notifier {
             Document document = Document.getLogDocument(chatId, build);
 
             if(document != null) {
-                botController.sendDocument(getToken(), document);
+                botController.sendDocument(getBotToken(), document);
             } else {
                 logger.println("TelegramBot: Could not find a logfile to send. Kind off ironic, as I'm writing this to it.");
             }
