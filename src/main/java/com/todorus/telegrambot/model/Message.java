@@ -170,13 +170,13 @@ public class Message {
 
             ChangeLogSet.Entry entry;
             int size = entries.size();
-            int startIndex = Math.max(0, size - MAX_MESSAGES);
-            for(int i = startIndex; i < size; i++){
+            int endIndex = Math.max(0, size - MAX_MESSAGES);
+            for(int i = size-1; i >= endIndex; i--){
                 entry = entries.get(i);
                 commit += "\n" + entry.getAuthor().getDisplayName() + ": " + entry.getMsg();
             }
 
-            if(startIndex > 0){
+            if(endIndex > 0){
                 // It has at least one commit that isn't shown, show dots
                 commit += "\n...";
             }

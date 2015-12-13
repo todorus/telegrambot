@@ -56,9 +56,9 @@ public class MessageTest {
         stub(changeLogSet.iterator()).toReturn(iterator);
 
         // Only show the last commits
-        changesString = "\n" + userDisplayName + ": " + changes.get(1).getMsg() +
+        changesString = "\n" + userDisplayName + ": " + changes.get(3).getMsg() +
                 "\n" + userDisplayName + ": " + changes.get(2).getMsg() +
-                "\n" + userDisplayName + ": " + changes.get(3).getMsg() +
+                "\n" + userDisplayName + ": " + changes.get(1).getMsg() +
                 "\n...";
 
         fullName = "the full name";
