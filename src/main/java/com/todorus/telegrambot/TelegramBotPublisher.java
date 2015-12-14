@@ -11,6 +11,7 @@ import hudson.Extension;
 import hudson.model.*;
 import hudson.tasks.*;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -85,7 +86,7 @@ public class TelegramBotPublisher extends Notifier {
 
         // Prep the message
         List<Chat> chats = Chat.parseChats(getChatId());
-        Message.Builder builder = new Message.Builder().setBuild(build);
+        Message.Builder builder = new Message.Builder().setRootUrl(Jenkins.getInstance().getRootUrl()).setBuild(build);
 
         // Prep the controller
         BotClient botClient = RetroAdapter.getAdapter().create(BotClient.class);
