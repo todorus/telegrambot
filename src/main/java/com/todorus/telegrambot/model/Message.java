@@ -3,6 +3,7 @@ package com.todorus.telegrambot.model;
 import com.google.gson.annotations.SerializedName;
 import hudson.model.AbstractBuild;
 import hudson.scm.ChangeLogSet;
+import jenkins.model.Jenkins;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -137,10 +138,13 @@ public class Message {
 
     public static class Builder {
 
+        private static final int MAX_MESSAGES = 3;
+
         List<ChangeLogSet.Entry> entries = new ArrayList<ChangeLogSet.Entry>();
 
         private AbstractBuild build;
         private long chatId;
+        private String rootUrl;
 
         public Builder setBuild(AbstractBuild build) {
             this.build = build;
@@ -159,33 +163,42 @@ public class Message {
             return this;
         }
 
-
-        public Message build() {
-            final int MAX_MESSAGES = 3;
-
-            String fullDisplayName = build.getFullDisplayName();
-            String result = build.getResult().toString();
-
+        private String buildCommitMessages(){
             String commit = "";
 
             ChangeLogSet.Entry entry;
             int size = entries.size();
-            int startIndex = Math.max(0, size - MAX_MESSAGES);
-            for(int i = startIndex; i < size; i++){
+            int endIndex = Math.max(0, size - MAX_MESSAGES);
+            for(int i = size-1; i >= endIndex; i--){
                 entry = entries.get(i);
                 commit += "\n" + entry.getAuthor().getDisplayName() + ": " + entry.getMsg();
             }
 
-            if(startIndex > 0){
+            if(endIndex > 0){
                 // It has at least one commit that isn't shown, show dots
                 commit += "\n...";
             }
 
-            Message message = new Message(chatId, fullDisplayName + " " + result + commit);
+            return commit;
+        }
+
+        public Builder setRootUrl(String rootUrl) {
+            this.rootUrl = rootUrl;
+            return this;
+        }
+
+        public Message build() {
+
+            String fullDisplayName = build.getFullDisplayName();
+            String result = build.getResult().toString();
+            String buildUrl = "\n\n"+rootUrl+build.getUrl();
+
+            String commit = buildCommitMessages();
+
+            Message message = new Message(chatId, fullDisplayName + " " + result + commit + buildUrl);
 
             return message;
         }
-
     }
 
 }
